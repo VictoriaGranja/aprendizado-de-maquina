@@ -22,7 +22,7 @@ stop_words = set(stopwords.words('portuguese'))
 def tokenizando(review):
     tokens = nltk.word_tokenize(review)
     tokens = [word.lower().strip(pontuacao) for word in tokens]
-    tokens = [word for word in tokens if word not in stop_words]
+    tokens = [word for word in tokens if word not in stop_words and word != ""]
     tokens = " ".join(tokens)
     return tokens
 
@@ -41,11 +41,10 @@ print(df)
 df['review_tokenizada'] = [lematizacao(review) for review in df.review_tokenizada]
 print(df)
 
-#df['rating'] = df.rating.replace(1, 1)
-#df['rating'] = df.rating.replace(2, 1)
-#df['rating'] = df.rating.replace(3, 2)
-#df['rating'] = df.rating.replace(4, 3)
-#df['rating'] = df.rating.replace(5, 3)
+df['rating'] = df.rating.replace(2, 1)
+df['rating'] = df.rating.replace(3, 2)
+df['rating'] = df.rating.replace(4, 2)
+df['rating'] = df.rating.replace(5, 3)
 
 x = df['review_tokenizada']
 y = df['rating']
