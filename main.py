@@ -43,7 +43,7 @@ df['review_tokenizada'] = [lematizacao(review) for review in df.review_tokenizad
 df['rating'] = df.rating.replace(1, 1)
 df['rating'] = df.rating.replace(2, 1)
 df['rating'] = df.rating.replace(3, 2)
-df['rating'] = df.rating.replace(4, 2)
+df['rating'] = df.rating.replace(4, 3)
 df['rating'] = df.rating.replace(5, 3)
 
 x = df['review_tokenizada']
@@ -100,14 +100,4 @@ y_pred = classificador.predict(x_test)
 print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
 
 y_pred_train = classificador.predict(x_train)
-print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
-
-from sklearn.naive_bayes import MultinomialNB
-mnb = MultinomialNB()
-mnb.fit(x_train.toarray()[:10000], y_train[:10000])
-
-y_pred = mnb.predict(x_test)
-print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
-
-y_pred_train = mnb.predict(x_train)
 print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
