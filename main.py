@@ -23,7 +23,7 @@ stop_words = set(stopwords.words('portuguese'))
 def tokenizando(review):
     tokens = nltk.word_tokenize(review)
     tokens = [word.lower().strip(pontuacao) for word in tokens]
-    tokens = [word for word in tokens if word not in stop_words]
+    tokens = [word for word in tokens if word not in stop_words and word != ""]
     tokens = " ".join(tokens)
     return tokens
 
