@@ -36,6 +36,7 @@ def lematizacao(review):
 
 
 df = pd.read_csv(r'.\database\olist.csv')
+df = df[['review_text', 'rating']]
 
 df['review_tokenizada'] = [tokenizando(review) for review in df.review_text]
 
@@ -70,15 +71,16 @@ print("f1", f1_score(y_test, y_pred, average='macro'))
 
 cm=confusion_matrix(y_test, y_pred)
 
-def plot_cm(conf_matrix):
+def plot_cm(conf_matrix, title):
   sns.set(font_scale=1.4,color_codes=True,palette="deep")
   sns.heatmap(cm,annot=True,annot_kws={"size":16},fmt="d",cmap="YlGnBu")
-  plt.title("Confusion Matrix")
+  plt.title(title)
   plt.xlabel("Predicted Value")
   plt.ylabel("True Value")
   plt.show()
 
-plot_cm(cm)
+
+plot_cm(cm, 'Confusion Matrix')
 
 print(cross_val_score(LogisticRegression(random_state=42), x_train, y_train, cv=10, verbose=1, n_jobs=-1).mean())
 
@@ -88,13 +90,14 @@ params = {
     'penalty':['l1','l2']
 }
 
+print("grid")
 # Grid search for hyper-parametres
 lr_grid = GridSearchCV(LogisticRegression(random_state=42),params, cv=5, verbose=2, n_jobs=-1)
 lr_grid.fit(x_train, y_train)
 
 y_predict=lr_grid.predict(x_test)
 cm=confusion_matrix(y_test, y_predict)
-plot_cm(cm)
+plot_cm(cm, 'Confusion matrix with Grid search')
 
 print(precision_recall_fscore_support(y_test, y_predict, average='macro'))
 
@@ -104,6 +107,7 @@ print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
 y_pred_train = classificador.predict(x_train)
 print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
 
+print("random")
 # Randomized hyper-parametres
 distributions = dict(C=uniform(loc=0, scale=4), penalty=['l2', 'l1'])
 random = RandomizedSearchCV(LogisticRegression(random_state=42), distributions, random_state=0)
@@ -112,7 +116,7 @@ random.fit(x_train, y_train)
 y_predict=random.predict(x_test)
 
 cm=confusion_matrix(y_test, y_predict)
-plot_cm(cm)
+plot_cm(cm, 'Confusion matrix with Randomized search')
 
 print(precision_recall_fscore_support(y_test, y_predict, average='macro'))
 
