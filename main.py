@@ -6,12 +6,13 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer, TfidfVectorizer
-# Logistic Regression Classifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.base import TransformerMixin
+from sklearn.pipeline import Pipeline
 
 #nltk.download() stopword, punkt
 pontuacao = string.punctuation
@@ -22,7 +23,7 @@ stop_words = set(stopwords.words('portuguese'))
 def tokenizando(review):
     tokens = nltk.word_tokenize(review)
     tokens = [word.lower().strip(pontuacao) for word in tokens]
-    tokens = [word for word in tokens if word not in stop_words]
+    tokens = [word for word in tokens if word not in stop_words and word != ""]
     tokens = " ".join(tokens)
     return tokens
 
@@ -36,16 +37,16 @@ def lematizacao(review):
 df = pd.read_csv(r'.\database\olist.csv')
 
 df['review_tokenizada'] = [tokenizando(review) for review in df.review_text]
-print(df)
 
 df['review_tokenizada'] = [lematizacao(review) for review in df.review_tokenizada]
-print(df)
 
-#df['rating'] = df.rating.replace(1, 1)
-#df['rating'] = df.rating.replace(2, 1)
-#df['rating'] = df.rating.replace(3, 2)
-#df['rating'] = df.rating.replace(4, 3)
-#df['rating'] = df.rating.replace(5, 3)
+#print(df.rating.value_counts())
+
+df['rating'] = df.rating.replace(1, 1)
+df['rating'] = df.rating.replace(2, 1)
+df['rating'] = df.rating.replace(3, 2)
+df['rating'] = df.rating.replace(4, 2)
+df['rating'] = df.rating.replace(5, 3)
 
 x = df['review_tokenizada']
 y = df['rating']
@@ -56,18 +57,17 @@ freq_vector = CountVectorizer(min_df=5, ngram_range=(1,2)).fit(df.review_tokeniz
 x_train = freq_vector.transform(x_train)
 x_test = freq_vector.transform(x_test)
 
-classifier = LogisticRegression(max_iter=500)
+classificador = LogisticRegression(max_iter=500)
+classificador.fit(x_train,y_train)
 
-# model generation
-classifier.fit(x_train,y_train)
+y_pred_train=classificador.predict(x_train)
+print("precision_recall_fscore_support", precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
 
+y_pred=classificador.predict(x_test)
+print("precision_recall_fscore_support", precision_recall_fscore_support(y_test, y_pred, average='macro'))
 
-y_pred_train=classifier.predict(x_train)
-precision_recall_fscore_support(y_train, y_pred_train, average='macro')
-
-y_pred=classifier.predict(x_test)
-precision_recall_fscore_support(y_test, y_pred, average='macro')
-
+print("f1", f1_score(y_train, y_pred_train, average='macro'))
+print("f1", f1_score(y_test, y_pred, average='macro'))
 
 cm=confusion_matrix(y_test, y_pred)
 
@@ -80,3 +80,36 @@ def plot_cm(conf_matrix):
   plt.show()
 
 plot_cm(cm)
+
+print(cross_val_score(LogisticRegression(random_state=42), x_train, y_train, cv=10, verbose=1, n_jobs=-1).mean())
+
+params = {
+    #'solver':['liblinear','saga','newton-cg','lbfgs'],
+    'C':[0.001,0.01,0.1,1,10,100],
+    'penalty':['l1','l2']
+}
+
+lr_grid = GridSearchCV(LogisticRegression(random_state=42),params, cv=5, verbose=2, n_jobs=-1)
+lr_grid.fit(x_train, y_train)
+
+y_predict=lr_grid.predict(x_test)
+cm=confusion_matrix(y_test, y_predict)
+plot_cm(cm)
+
+print(precision_recall_fscore_support(y_test, y_predict, average='macro'))
+
+y_pred = classificador.predict(x_test)
+print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
+
+y_pred_train = classificador.predict(x_train)
+print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
+
+from sklearn.naive_bayes import MultinomialNB
+mnb = MultinomialNB()
+mnb.fit(x_train.toarray()[:10000], y_train[:10000])
+
+y_pred = mnb.predict(x_test)
+print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
+
+y_pred_train = mnb.predict(x_train)
+print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
