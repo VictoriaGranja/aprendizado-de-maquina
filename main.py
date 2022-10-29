@@ -6,13 +6,14 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
+from scipy.stats import uniform
 
 #nltk.download() stopword, punkt
 pontuacao = string.punctuation
@@ -87,10 +88,29 @@ params = {
     'penalty':['l1','l2']
 }
 
+# Grid search for hyper-parametres
 lr_grid = GridSearchCV(LogisticRegression(random_state=42),params, cv=5, verbose=2, n_jobs=-1)
 lr_grid.fit(x_train, y_train)
 
 y_predict=lr_grid.predict(x_test)
+cm=confusion_matrix(y_test, y_predict)
+plot_cm(cm)
+
+print(precision_recall_fscore_support(y_test, y_predict, average='macro'))
+
+y_pred = classificador.predict(x_test)
+print(precision_recall_fscore_support(y_test, y_pred, average='macro'))
+
+y_pred_train = classificador.predict(x_train)
+print(precision_recall_fscore_support(y_train, y_pred_train, average='macro'))
+
+# Randomized hyper-parametres
+distributions = dict(C=uniform(loc=0, scale=4), penalty=['l2', 'l1'])
+random = RandomizedSearchCV(LogisticRegression(random_state=42), distributions, random_state=0)
+
+random.fit(x_train, y_train)
+y_predict=random.predict(x_test)
+
 cm=confusion_matrix(y_test, y_predict)
 plot_cm(cm)
 
