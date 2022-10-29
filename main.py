@@ -40,11 +40,11 @@ df['review_tokenizada'] = [tokenizando(review) for review in df.review_text]
 
 df['review_tokenizada'] = [lematizacao(review) for review in df.review_tokenizada]
 
-#df['rating'] = df.rating.replace(1, 1)
-#df['rating'] = df.rating.replace(2, 1)
-#df['rating'] = df.rating.replace(3, 2)
-#df['rating'] = df.rating.replace(4, 3)
-#df['rating'] = df.rating.replace(5, 3)
+df['rating'] = df.rating.replace(1, 1)
+df['rating'] = df.rating.replace(2, 1)
+df['rating'] = df.rating.replace(3, 2)
+df['rating'] = df.rating.replace(4, 2)
+df['rating'] = df.rating.replace(5, 3)
 
 x = df['review_tokenizada']
 y = df['rating']
