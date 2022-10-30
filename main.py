@@ -1,5 +1,5 @@
 from tokens import tokenizando, lematizacao
-from treinamento import treino, previsao, metricas, crossValidation, regressaoLogistica, alteracaoPorGridSearchCV, alteracaoPorRandomizedSearchCV
+from treinamento import *
 from grafico import geraGrafico
 import pandas as pd
 import numpy as np
@@ -23,27 +23,26 @@ x_train, x_test, y_train, y_test = treino(x, y, df)
 
 classificador = regressaoLogistica(x_train, y_train)
 y_prev_train = previsao(classificador, x_train)
-metricas(y_train, y_prev_train)
+metricas(y_train, y_prev_train, 'treinamento com regressão logística')
 y_prev = previsao(classificador, x_test)
-metricas(y_test, y_prev)
+metricas(y_test, y_prev, 'teste com regressão logística')
 geraGrafico(y_test, y_prev, 'Confusion Matrix')
 
 crossValidation(x_train, y_train)
 
 lr_grid = alteracaoPorGridSearchCV(x_train, y_train)
 y_predict = previsao(lr_grid, x_test)
-geraGrafico(y_test, y_predict, 'Confusion matrix with Grid search')
-metricas(y_test, y_predict)
-y_prev = previsao(classificador, x_test)
-metricas(y_test, y_prev)
-y_prev_train = previsao(classificador, x_train)
-metricas(y_train, y_prev_train)
+geraGrafico(lr_grid, y_predict, 'Confusion matrix with Grid search')
+metricas(y_test, y_predict, 'teste com grid search')
+
+y_prev_train = previsao(lr_grid, x_train)
+metricas(y_train, y_prev_train, 'treinamento com grid seach')
+
 
 random = alteracaoPorRandomizedSearchCV(x_train, y_train)
 y_predict = previsao(random, x_test)
 geraGrafico(y_test, y_predict, 'Confusion matrix with Randomized search')
-metricas(y_test, y_predict)
-y_prev = previsao(classificador, x_test)
-metricas(y_test, y_prev)
-y_prev_train = previsao(classificador, x_train)
-metricas(y_train, y_prev_train)
+metricas(y_teste, y_predict, 'teste com randomized search')
+
+y_prev_train = previsao(random, x_train)
+metricas(y_train, y_prev_train, 'treinamento com randomizes search')

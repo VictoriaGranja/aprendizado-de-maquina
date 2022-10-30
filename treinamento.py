@@ -23,7 +23,8 @@ def regressaoLogistica(x, y):
 def previsao(c, x):
     return c.predict(x)
 
-def metricas(y, y_prev):
+def metricas(y, y_prev, text):
+    print('Métricas de: ', text)
     print("precision_recall_fscore_support", precision_recall_fscore_support(y, y_prev, average='macro'))
     print("F1", f1_score(y, y_prev, average='macro'))
 
