@@ -4,7 +4,7 @@ from grafico import geraGrafico
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv(r'.\database\olist.csv')
+df = pd.read_csv(r'.\dataset\olist.csv')
 df = df[['review_text', 'rating']]
 
 df['review_tokenizada'] = [tokenizando(review) for review in df.review_text]
@@ -32,7 +32,7 @@ crossValidation(x_train, y_train)
 
 lr_grid = alteracaoPorGridSearchCV(x_train, y_train)
 y_predict = previsao(lr_grid, x_test)
-geraGrafico(lr_grid, y_predict, 'Confusion matrix with Grid search')
+geraGrafico(y_test, y_predict, 'Confusion matrix with Grid search')
 metricas(y_test, y_predict, 'teste com grid search')
 
 y_prev_train = previsao(lr_grid, x_train)
@@ -42,7 +42,7 @@ metricas(y_train, y_prev_train, 'treinamento com grid seach')
 random = alteracaoPorRandomizedSearchCV(x_train, y_train)
 y_predict = previsao(random, x_test)
 geraGrafico(y_test, y_predict, 'Confusion matrix with Randomized search')
-metricas(y_teste, y_predict, 'teste com randomized search')
+metricas(y_test, y_predict, 'teste com randomized search')
 
 y_prev_train = previsao(random, x_train)
 metricas(y_train, y_prev_train, 'treinamento com randomizes search')
